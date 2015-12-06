@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    zopfli (0.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  zopfli (= 0.0.4)
+
+BUNDLED WITH
+   1.10.6
