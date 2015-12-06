@@ -15,7 +15,7 @@ bundle exec ruby compare.rb
 ## Results
 
 ```
-$ be ruby compare.rb
+$ bundle exec ruby compare.rb
 ----------------------------------------------------------------------
                     File: codetriage.js
                  Gzipped: 43752 bytes
