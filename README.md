@@ -5,7 +5,7 @@ For context see https://github.com/rails/sprockets/issues/26#issuecomment-161733
 ```bash
 git clone ...
 
-cd gz-benchmark/
+cd gz-compare/
 
 bundle
 
