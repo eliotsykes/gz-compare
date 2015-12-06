@@ -11,12 +11,12 @@ def gzip_compress(source, source_file_name)
   output_file_name
 end
 
-# DEFAULT_ZOPFLI_ITERATIONS = 15 # If omitted, Zopfli itself defaults to 15 iterations
-def zopfli_compress(source, source_file_name, num_iterations=nil)
+# If omitted, Zopfli itself defaults to 15 iterations
+def zopfli_compress(source, source_file_name, iterations=nil)
   output_file_name = "#{source_file_name}.zopf.gz"
   IO.binwrite(
     output_file_name,
-    Zopfli.deflate(source, format: :gzip, num_iterations: num_iterations)
+    Zopfli.deflate(source, format: :gzip, num_iterations: iterations)
   )
   output_file_name
 end
@@ -28,31 +28,30 @@ def assert_decompresses(compressed_file, expected_uncompressed_data)
   end
 end
 
-# asset_url = 'https://issuetriage-herokuapp-com.global.ssl.fastly.net/assets/application-c4dfdc831b963c426131ae50f1facfbe6de899ad7f860fb7758b0706ab230e7a.js'
-
-
-source_file_name = 'issuetriage.js'
-source = File.read(source_file_name)
-
-gzipped_file_name = gzip_compress(source, source_file_name)
-zopflied_file_name = zopfli_compress(source, source_file_name)
-
-gzipped_file = File.new(gzipped_file_name)
-zopflied_file = File.new(zopflied_file_name)
-
-assert_decompresses(gzipped_file, source)
-assert_decompresses(zopflied_file, source)
-
 def compare_file_size(file1, file2)
   percentage = file1.size/file2.size.to_f * 100
-  "#{percentage.round(1)}% of #{file2.path}"
+  "#{percentage.round(2)}% of #{file2.path}"
 end
 
-# puts "Original file size: #{File.size(source_file_name)}"
-puts " Gzipped file size: #{gzipped_file.size}"
-puts "Zopflied file size: #{zopflied_file.size} (#{compare_file_size(zopflied_file, gzipped_file)})"
+puts "-"*70
+['codetriage.js', 'codetriage.css', 'codetriage.svg'].each do |source_file_name|
 
+  puts "                    File: #{source_file_name}"
+  source = File.read(source_file_name)
 
-# TODO:
-# - compare file sizes for JS, CSS, SVG examples
-# - estimate transfer time saving over various network speeds
+  gzipped_file_name = gzip_compress(source, source_file_name)
+  gzipped_file = File.new(gzipped_file_name)
+  assert_decompresses(gzipped_file, source)
+
+  puts "                 Gzipped: #{gzipped_file.size} bytes"
+
+  # 15 iterations is the preset default for Zopfli
+  [1, 15, 15*15].each do |iterations|
+    zopflied_file_name = zopfli_compress(source, source_file_name, iterations)
+    zopflied_file = File.new(zopflied_file_name)
+    assert_decompresses(zopflied_file, source)
+    puts "Zopflied (#{iterations} iterations): #{zopflied_file.size} bytes (#{compare_file_size(zopflied_file, gzipped_file)})"
+  end
+
+  puts "-"*70
+end
